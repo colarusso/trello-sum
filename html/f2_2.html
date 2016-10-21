@@ -1,0 +1,128 @@
+		var workday = 7
+		var timeondeck = 0
+		var totalhours_g = 0
+
+		var nTasks = x.length;
+		
+		var tq = []
+		
+		var clocktimer;
+
+		function pad(num, size) {
+			var s = "0000" + num;
+			return s.substr(s.length - size);
+		}
+
+		function formatTime(time) {
+			var h = m = s = ms = 0;
+			var newTime = '';
+
+			h = Math.floor( time / (60 * 60 * 1000) );
+			time = time % (60 * 60 * 1000);
+			m = Math.floor( time / (60 * 1000) );
+			time = time % (60 * 1000);
+			s = Math.floor( time / 1000 );
+			ms = time % 1000;
+
+			newTime = pad(h, 2) + ':' + pad(m, 2) + ':' + pad(s, 2) + ':' + pad(ms, 3);
+			return newTime;
+		}
+        
+//show OR hide funtion depends on if element is shown or hidden
+
+function shoh(id) { 
+    if (document.getElementById) { // DOM3 = IE5, NS6
+        if (document.getElementById(id).style.display == "none"){
+            document.getElementById(id).style.display = 'block';
+        } else {
+            document.getElementById(id).style.display = 'none';         
+        }   
+    } else { 
+        if (document.layers) {  
+            if (document.id.display == "none"){
+                document.id.display = 'block';
+            } else {
+                document.id.display = 'none';
+            }
+        } else {
+            if (document.all.id.style.visibility == "none"){
+                document.all.id.style.display = 'block';
+            } else {
+                document.all.id.style.display = 'none';
+            }
+        }
+    }
+} 
+
+		function show() {		
+			for (var i = 0; i < nTasks; i++) {
+				tq[i] = document.getElementById(i);
+			}
+			update();
+		}
+
+		function update() {
+			var totalhours = 0
+			for (var i = 0; i < nTasks; i++) {
+				tq[i].innerHTML = formatTime(x[i].time());
+				var hid = "h"+i;
+				document.getElementById(hid).value = x[i].time();
+				totalhours = totalhours + x[i].time();
+				
+			}
+			totalhours_g = totalhours;
+			totalhours = totalhours - timeondeck;
+			var hoursleft = ((workday*60*60*1000 - totalhours)/(60*60*1000));
+			hleft.innerHTML = hoursleft.toFixed(2)
+			var d = new Date();
+			var newDateObj = new Date(d.getTime() + hoursleft*60*60*1000);
+			var ampm = "AM";
+			if (newDateObj.getHours() > 12) { 
+				ampm = "PM";
+				leaveH = newDateObj.getHours() - 12;
+			} else {
+				leaveH = newDateObj.getHours() - 12;
+			}
+			if (newDateObj.getMinutes() < 10) { 
+				leaveM = "0"+newDateObj.getMinutes();
+			} else {
+				leaveM = newDateObj.getMinutes();
+			}
+			var leaveat = leaveH +":"+ leaveM +" "+ ampm
+			Closing.innerHTML = leaveat;
+		}
+
+		function start(target) {
+			clocktimer = setInterval("update()", 1);
+			for (var i = 0; i < nTasks; i++) {
+				x[i].stop();
+			}
+			x[target].start();
+		}
+
+		function stop(target) {
+			for (var i = 0; i < nTasks; i++) {
+				x[i].stop();
+			}
+			clearInterval(clocktimer);
+		}
+
+		function reset(target) {
+			stop(target);
+			x[target].reset();
+			update();
+		}
+	</script>
+</head>
+<body onload="show();">
+<div class=timers>
+	<h2><span id='hleft'></span> hours left. Day ends at <span id='Closing'></span></h2>
+	<div class=task>
+		<div class=time>Other</div>
+		<div class=buttons>
+			(<span id='0'></span>) <input type=hidden id='h0'/>
+			<input type="button" value="start" onclick="start(0);">
+			<input type="button" value="stop" onclick="stop(0);">
+			<input type="button" value="reset" onclick="reset(0)">
+		</div>
+	</div>
